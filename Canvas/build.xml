@@ -1,0 +1,93 @@
+<project name="CanvasApp" default="main">
+  <description>
+    Compile, run, and test the multi-window canvas project
+  </description>
+
+  <!-- ================================= 
+       target: init              
+       ================================= -->
+  <target name="init" description="Define properties and set time stamp">
+    <property name="src.dir" location="src" />
+    <property name="testsrc.dir" location="testsrc" />
+    <property name="build.dir" location="bin" />
+    <property name="lib.dir" location="lib"/>
+    <property name="dist.dir" location="dist" />
+
+    <property name="run.app" value="canvas.app.CanvasApp" />
+    
+    <path id="classpath">
+      <fileset dir="lib" includes="**/*.jar" />
+    </path>
+
+    <tstamp />
+  </target>
+
+  <!-- ================================= 
+       target: clean              
+       ================================= -->
+  <target name="clean" depends="init" description="Delete complied codes ">
+    <delete dir="${build.dir}"/>
+    <delete dir="${dist.dir}" />
+  </target>
+  
+  <!-- ================================= 
+       target: compile              
+       ================================= -->
+  <target name="compile" depends="clean" description="Compile the app project">
+    <mkdir dir="${build.dir}"/>
+    <javac srcdir="${src.dir}" destdir="${build.dir}" includeantruntime="false" />
+  </target>
+  
+  <!-- ================================= 
+       target: runApp              
+       ================================= -->
+  <target name="runApp" depends="compile" description="Run app">
+    <java fork="true" classpath="${build.dir}" classname="${run.app}"></java>
+  </target>
+
+  <!-- ================================= 
+       target: dist              
+       ================================= -->
+  <target name="dist" depends="compile" description="Build jar file">
+    <mkdir dir="${dist.dir}"/>
+    <jar jarfile="${dist.dir}/Canvas-${DSTAMP}-${TSTAMP}.jar" basedir="${build.dir}">
+      <manifest>
+        <attribute name="Main-Class" value="${run.app}"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <!-- ================================= 
+       target: compileUnitTest              
+       ================================= -->
+  <target name="compileUnitTest" depends="dist" description="Compile unit tests">
+    <javac srcdir="${testsrc.dir}" destdir="${build.dir}" includeantruntime="false" 
+        classpathref="classpath">
+    </javac>
+  </target>
+  
+  <!-- ================================= 
+       target: runUnitTest              
+       ================================= -->
+  <target name="runUnitTest" depends="compileUnitTest" description="Run unit tests">
+    <junit fork="yes" haltonfailure="no" printsummary="withOutAndErr">
+      <formatter type="plain" usefile="false" />
+      <test name="canvas.model.CanvasModelTest"/>
+      <classpath>
+        <path location="${build.dir}" />
+        <path location="${jar.path}" />
+        <path refid="classpath" />
+      </classpath>
+    </junit>
+  </target>
+  
+  <!-- ================================= 
+       target: main              
+       ================================= -->
+  <target name="main" depends="runApp, runUnitTest">
+    <description>
+      Compile, run and test the program
+    </description>
+  </target>
+  
+</project>
